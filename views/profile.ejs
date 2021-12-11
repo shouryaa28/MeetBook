@@ -1,0 +1,29 @@
+<%include ./partials/header.ejs %>
+    <% if(allPosts.length > 0){ %>
+       <% allPosts.reverse().forEach(function(elem){ %>
+        <br>
+        <div class="container border">
+          <div class="text-center">
+            <p><strong><%= elem.author.username %> </strong><i> uploaded a post.</i></p>
+            <% if(elem.content){%>
+              <img src="/images/uploads/<%= elem.content %>" class="figure-img img-fluid rounded img-thumbnail">
+            <% }%>
+              <p><%= elem.desc %></p>
+              <button class="rounded-3" style="text-decoration: none;"><a href="/likes/<%= elem._id %>"><%= elem.likes.length %> Likes</a></button>
+              <br><br>
+              <% if(elem.comments.length >0){%>
+                <% elem.comments.reverse().forEach(function(cmnts){%>
+                <p> <%=cmnts.user %>: <%= cmnts.cmnt %> <br>
+                </p>
+                  <% }) %>
+              <% } %>
+              <form action="/comments/<%= elem._id %>" method="post">
+              <textarea class="rounded-pill" name="comment" cols="50" rows="1" placeholder="  Write a comment..."></textarea>
+              <input class="rounded-3" type="submit" value="Send">
+              </form>
+              </div>
+        </div><br>
+        <% }) %>
+    <% } else { %>
+            <h1>Oops !! No items here.</h1>
+    <% } %>

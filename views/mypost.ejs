@@ -1,0 +1,42 @@
+<%include ./partials/header.ejs %>
+<div class="container">
+          <div class="jumbotron mt-5">
+              <div class="card" style="width: 5rem;">
+                <img style="height: 5rem; object-fit: cover;" class="card img-top" src="../images/uploads/<%= foundUser.profilepic %>">
+            </div>
+            <form action="/upload" method="post"  enctype="multipart/form-data">             
+              <input type="file" name="image">
+              <input type="submit">  
+      </form>
+        </div>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title"><%= foundUser.username %></h5>
+        </div>
+    <% if(foundUser.posts.length > 0){ %>
+       <% foundUser.posts.reverse().forEach(function(elem){ %>
+        <div class="container">
+          <div class="text-center">
+            <p><strong>You</strong><i> uploaded a post.</i></p>
+
+              <% if(elem.content)%><img src="/images/uploads/<%= elem.content %>" class="figure-img img-fluid rounded img-thumbnail">
+                <p><%= elem.desc %></p>
+                <button><a href="/likes/<%= elem._id %>"><%= elem.likes.length %> Likes</a></button>
+                <br>
+                <% if(elem.comments.length > 0){%>
+                  <% elem.comments.reverse().forEach(function(cmnts){%>
+                  <span><%= cmnts.user %> : <%= cmnts.cmnt %> <br>
+                  </span>
+                    <% }) %>
+                <% } %>
+                <form action="/comments/<%= elem._id %>" method="post">
+                <textarea class="rounded-pill" name="comment" cols="50" rows="1" placeholder="  Write a comment..."></textarea>
+                <input class="rounded-3" type="submit" value="Send">
+                </form>
+          </div>
+        </div>
+        <% }) %>
+    <% } else { %>
+        <h1>Oops !! No items here.</h1>
+    <% } %>
+    

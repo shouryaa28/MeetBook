@@ -1,0 +1,18 @@
+<% include ./partials/header.ejs %>
+    <div class="container d-flex p-2">
+      <form class="row g-3" action="/newpassword/<%= foundUser._id %>" method="post">
+        <h1> </h1>
+        <div class="col-12">
+          <label for="inputEmail4" class="form-label">New password</label>
+          <input name="password1" type="password" class="form-control" id="inputEmail4">
+        </div>
+        <div class="col-12">
+          <label for="inputPassword4" class="form-label">Confirm password</label>
+          <input name="password2" type="password" class="form-control" id="inputPassword4">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Change password</button>
+        </div>
+      </form>
+    </div>
+    
