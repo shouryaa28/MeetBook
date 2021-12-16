@@ -13,6 +13,7 @@
     "express-session": "^1.17.2",
     "googleapis": "^92.0.0",
     "http-errors": "~1.6.3",
+    "jimp": "^0.16.1",
     "mongoose": "^6.0.12",
     "morgan": "~1.9.1",
     "multer": "^1.4.3",

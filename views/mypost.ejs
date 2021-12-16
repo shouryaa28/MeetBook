@@ -5,8 +5,8 @@
                 <img style="height: 5rem; object-fit: cover;" class="card img-top" src="../images/uploads/<%= foundUser.profilepic %>">
             </div>
             <form action="/upload" method="post"  enctype="multipart/form-data">             
-              <input type="file" name="image">
-              <input type="submit">  
+              <input type="file" name="image" onchange="form.submit()">
+         
       </form>
         </div>
         </div>

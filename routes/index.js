@@ -7,7 +7,9 @@ const postModel = require('./post')
 const multer = require('multer');
 const commentModel = require('./comment')
 const { v4: uuidv4 } = require('uuid');
-const sendmail = require('./nodemailer')
+const sendMail = require('./nodemailer')
+const Jimp = require('jimp');
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -58,7 +60,7 @@ router.get('/profile',isLoggedIn,function(req,res){
     postModel.find()
     .populate("author comments")
     .then(function(allPosts){
-      console.log((allPosts))
+      
       res.render('profile',{allPosts,foundUser,pagename:'Timeline'})
     });
   });
@@ -89,7 +91,6 @@ router.get('/likes/:id',isLoggedIn,function(req,res){
       postModel.findOne({_id:req.params.id})
       .populate("likes")
       .then(function(foundPost){
-        console.log(foundPost)
         if(foundPost.likes.indexOf(foundUser._id) == -1){
           foundPost.likes.push(foundUser._id)
         }
@@ -136,17 +137,26 @@ router.get('/mypost',isLoggedIn,function(req,res){
       }
     })
   .then(function(foundUser){
-    console.log(foundUser)
     res.render('mypost',{foundUser,pagename:'My posts'})
   });
 });
 router.post('/upload',upload.single('image'),function(req,res){
   userModel.findOne({username:req.session.passport.user})
   .then(function(foundUser){
+    Jimp.read(`./public/images/uploads/${req.file.filename}`, (err, file) => {
+      if (err) throw err;
+      file
+          .resize(file.bitmap.width*.5,file.bitmap.height*.5) // resize
+          .quality(50) // set JPEG quality
+          .greyscale()
+          .write(`./public/images/uploads/${req.file.filename}`); // save
+    })
+    console.log(req)
     foundUser.profilepic = req.file.filename
     foundUser.save()
     .then(function(saved){
       res.redirect('/mypost')
+  
     })
   })
 });
@@ -160,15 +170,23 @@ router.post('/reset',function(req,res){
     var secret= uuidv4();
     foundUser.secret = secret;
     foundUser.save()
-    sendmail("shrivastavshourya28@gmail.com",`http://localhost:3000/${foundUser._id}/${secret}`)
-    .then(function(){
-      res.send('mail sent!')
-    })}
-    else{
-      res.send("No such user")
-    }
-  })
+    .then(function(sendmai){
+      console.log(sendmai)
+      sendMail(req.body.email,`http://localhost:3000/reset/${foundUser._id}/${secret}`)
+        res.send('mail sent!')
+    })
+  }else{
+    res.send("no such user")
+  }
 })
+})
+
+// router.get('/mail',function(req,res){
+//   sendMail("shrivastavshourya28@gmail.com","<h1>hsdfjldsjfsd</h1>")
+//   .then(function(data){
+//     res.send("sent")
+//   })
+// })
 router.get('/reset/:id/:secret',isLoggedIn,function(req,res){
   userModel.findOne({_id:req.params.id})
   .then(function(foundUser){
@@ -181,23 +199,27 @@ router.post('/newpassword/:id',function(req,res){
   userModel.findOne({_id:req.params.id})
   .then(function(foundUser){
     if(req.body.password1 === req.body.password2){
-      foundUser.setPassword = req.body.password1;
-      foundUser.save()
-      .then(function(){
-        res.redirect('/mid');
-      })
+      foundUser.setPassword(req.body.password1,function(saved){
+        foundUser.save()
+        .then(function(){
+          req.logIn(foundUser,function(logged){
+            res.redirect('/profile');
+          })
+        })
+      });
     }
   })
 })
-router.get('/mid',function(req,res){
-  userModel.findOne({username:req.session.passport.user})
-  then(function(foundUser){
-    req.logIn(foundUser)
-    .then(function(){
-      res.redirect('/profile');
-    })
-  })
-})
+
+// router.get('/mid',function(req,res){
+//   userModel.findOne({username:req.session.passport.user})
+//   .then(function(foundUser){
+//     req.logIn(foundUser)
+//     .then(function(){
+//       res.redirect('/profile');
+//     })
+//   })
+// })
 
 
 module.exports = router;
